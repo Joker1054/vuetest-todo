@@ -21,7 +21,8 @@
                   <li v-for="item in items" :key="item.id" class="list-group-item" style="text-align: left;">
                     <Item v-bind:item="item" :id="item.id" 
                       @delete-item="deleteTask" 
-                      @check-done="checkDone">   
+                      @check-done="checkDone"
+                      @set-priority="setPriority">   
                     </Item>
                   </li>
                 </ul> 
@@ -47,7 +48,7 @@
     components: {
 
       Item,
-      
+
     },
 
     data () {
@@ -58,7 +59,9 @@
           body: '',
           priority: false, 
           is_done: false
-        }
+        },
+
+        is_prior: true,
       }
     },
 
@@ -99,11 +102,25 @@
       },
 
       checkDone (item) {
-        item.is_done = true;
 
-        this.$http.put(`items/${item.id}`, item).catch((error) => { console.log(error); });
+        this.$http.put(`items/${item.id}`, item)
+          .catch((error) => { console.log(error); });
 
       },
+
+      setPriority(item) {
+
+        if (item.is_done === false) {
+
+          this.is_prior = item.priority ? false : true;
+
+          item.priority = this.is_prior;
+          this.$http.put(`items/${item.id}`, item)
+            .catch((error) => { console.log(error); });
+
+        }
+
+      }
 
     }  
   }

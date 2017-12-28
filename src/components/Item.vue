@@ -5,11 +5,12 @@
       <label :for="item.id" style="text-align: center;" @click="emitCheckDone()">
         {{ item.body }}
       </label>
+      <span v-if="item.priority" class="glyphicon glyphicon-exclamation-sign"></span>
     </div>
     <div class="pull-right action-buttons">
-      <a href=""><span class="glyphicon glyphicon-pencil"></span></a>
+      <a href="#"><span class="glyphicon glyphicon-pencil"></span></a>
       <a href="#" class="trash" @click="emitDeleteTask()"><span class="glyphicon glyphicon-trash"></span></a>
-      <a href="" class="flag"><span class="glyphicon glyphicon-flag"></span></a>
+      <a href="#" class="flag" @click="emitSetPriority()"><span class="glyphicon glyphicon-flag"></span></a>
     </div>
   </div>
 </template>
@@ -29,6 +30,10 @@
       
       emitCheckDone () {
         this.$emit('check-done', this.item);
+      },
+
+      emitSetPriority () {
+        this.$emit('set-priority', this.item);
       }
 
     },
@@ -48,5 +53,9 @@
 
   .flag { 
     color:rgb(248, 148, 6); 
+  }
+
+  .glyphicon-exclamation-sign {
+    color:rgb(248, 148, 6);
   }
 </style>
