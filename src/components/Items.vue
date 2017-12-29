@@ -103,7 +103,7 @@
 
         if (!item.is_done) {
           this.is_prior = item.priority ? false : true;
-          
+
           item.priority = this.is_prior;
           this.$http.put(`items/${item.id}`, item)
             .catch((error) => { console.log(error); });
@@ -136,77 +136,70 @@
 
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+	#app {
+	  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+	  -webkit-font-smoothing: antialiased;
+	  -moz-osx-font-smoothing: grayscale;
+	  text-align: center;
+	  color: #2c3e50;
+	  margin-top: 60px;
+	}
 
-h1, h2 {
-  font-weight: normal;
-}
+	h1, h2 {
+	  font-weight: normal;
+	}
 
-ul {
-  list-style-type: none;
-  padding: 0;
-}
+	ul {
+	  list-style-type: none;
+	  padding: 0;
+	}
 
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
+	li {
+	  display: inline-block;
+	  margin: 0 10px;
+	}
 
-a {
-  color: #42b983;
-}
+	a {
+	  color: #42b983;
+	}
 
-.tasks-list {
-  
-  margin: 20px;
-}
+	.tasks-list {
+	  
+	  margin: 20px;
+	}
 
-.panel-body { 
-  padding:0px; 
-}
+	.panel-body { 
+	  padding:0px; 
+	}
 
-.panel-footer .pagination { 
-  margin: 0; 
-}
+	.panel-footer .pagination { 
+	  margin: 0; 
+	}
 
-.panel .glyphicon,.list-group-item .glyphicon { 
-  margin-right:5px; 
-}
+	.panel .glyphicon,.list-group-item .glyphicon { 
+	  margin-right:5px; 
+	}
 
-.panel-body .radio, .checkbox { 
-  display:inline-block;
-  margin:0px; 
-}
+	.panel-body .radio, .checkbox { 
+	  display:inline-block;
+	  margin:0px; 
+	}
 
-.panel-body input[type=checkbox]:checked + label { 
-  text-decoration: line-through;
-  color: rgb(128, 144, 160); 
-}
+	.panel-body input[type=checkbox]:checked + label { 
+	  text-decoration: line-through;
+	  color: rgb(128, 144, 160); 
+	}
 
-.list-group-item:hover, a.list-group-item:focus { 
-  text-decoration: none;
-  background-color: rgb(245, 245, 245);
-}
+	.list-group-item:hover, a.list-group-item:focus { 
+	  text-decoration: none;
+	  background-color: rgb(245, 245, 245);
+	}
 
-.list-group-item {
-  padding-left: 25px;
-}
+	.list-group-item {
+	  padding-left: 25px;
+	}
 
-.list-group { 
-  margin-bottom:0px; 
-}
-
-.my-c-box {
-  vertical-align: central;
-  align-self: central;
-  alignment-baseline: central;
-}
-
+	.list-group { 
+	  margin-bottom:0px; 
+	}
 </style>

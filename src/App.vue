@@ -12,9 +12,8 @@
     name: 'app',
 
     components: {
-
+      
       Items,
-
     },
   }
 </script>
