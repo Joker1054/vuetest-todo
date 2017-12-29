@@ -2,15 +2,27 @@
   <div>
     <div class="checkbox">
       <input class="my-c-box" type="checkbox" :id="item.id" @click="emitCheckDone()" v-model="item.is_done">
-      <label :for="item.id" style="text-align: center;" contenteditable="true" v-model="body">
+      <input class="edit-input" v-if="isEditing" v-model="item.body">
+      <label :for="item.id" v-else style="text-align: center;">
         {{ item.body }}
       </label>
-      <span v-if="item.priority" class="glyphicon glyphicon-exclamation-sign"></span>
     </div>
     <div class="pull-right action-buttons">
-      <a href="#" @click="editing()"><span class="glyphicon glyphicon-pencil"></span></a>
-      <a href="#" class="trash" @click="emitDeleteTask()"><span class="glyphicon glyphicon-trash"></span></a>
-      <a href="#" class="flag" @click="emitSetPriority()"><span class="glyphicon glyphicon-flag"></span></a>
+      <a href="#" @click="isEditing=true" v-if="!isEditing">
+        <span class="glyphicon glyphicon-pencil"></span>
+      </a>
+      <a href="#" class="trash" @click="emitDeleteTask()" v-if="!isEditing">
+        <span class="glyphicon glyphicon-trash"></span>
+      </a>
+      <a href="#" :class="{'flag' : item.priority}" @click="emitSetPriority()" v-if="!isEditing">
+        <span class="glyphicon glyphicon-flag"></span>
+      </a>
+      <a href="#" class="ok" @click="emitEditBody()" v-else>
+        <span class="glyphicon glyphicon-ok"></span>
+      </a>
+      <a href="#" class="no" @click="isEditing = false" v-if="isEditing">
+        <span class="glyphicon glyphicon-remove"></span>
+      </a>
     </div>
     <v-dialog/>
   </div>
@@ -26,8 +38,6 @@
     data () {
 
       return {
-        body: '',
-
         isEditing: false,
       }   
 
@@ -36,7 +46,6 @@
     methods: {
 
       emitDeleteTask () {
-
         this.$modal.show('dialog', {
           title: 'Confirm',
           text: 'Are you sure?',
@@ -44,7 +53,12 @@
             { 
               title: 'Remove',
               default: true,
-              handler: () => { this.$emit('delete-item', this.item); this.$modal.hide('dialog'); }
+              handler: () => { 
+                this.$emit(
+                  'delete-item', this.item
+                ); 
+                this.$modal.hide('dialog'); 
+              }
             },
             { 
               title: 'Close'
@@ -63,16 +77,14 @@
       },
 
       emitEditBody () {
-        this.item.body = this.body;
         this.$emit('edit-body', this.item);
+        this.isEditing = false;
       },
 
       editing() {
         this.isEditing = true;
       }
-
     },
-
   };
 
 </script>
@@ -88,5 +100,17 @@
 
   .glyphicon-exclamation-sign {
     color:rgb(248, 148, 6);
+  }
+
+  .ok {
+    color:rgb(5, 248, 150);
+  }
+
+  .no {
+    color:rgb(209, 91, 71);
+  }
+
+  .edit-input {
+    width: 40vw;
   }
 </style>
