@@ -10,7 +10,7 @@
                   <ul class="nav navbar-nav">
                     <li>
                       <div class="navbar-header">
-                        <p><i class="glyphicon glyphicon-user"></i>{{ currentUser }}</p>
+                        <p><i class="glyphicon glyphicon-user"></i> {{ currentUser }}</p>
                       </div>
                     </li>
                     <li class="dropdown">
