@@ -1,20 +1,15 @@
 <template>
   <div id="app">
-    <Items></Items>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-  import Items from './components/Items';
 
   export default {
 
     name: 'app',
 
-    components: {
-      
-      Items,
-    },
   }
 </script>
 

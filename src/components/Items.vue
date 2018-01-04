@@ -1,9 +1,28 @@
 <template>
-	<div class="container">
+  <div class="container">
     <div class="row">
       <div class="col-md-8 col-md-offset-2">
         <div class="panel panel-default">
           <div class="panel-heading">
+            <div class="userbar">
+              <nav class="navbar navbar-default navbar-xs">
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                  <ul class="nav navbar-nav">
+                    <li>
+                      <div class="navbar-header">
+                        <p><i class="glyphicon glyphicon-user"></i>{{ currentUser }}</p>
+                      </div>
+                    </li>
+                    <li class="dropdown">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b class="caret"></b></a>
+                      <ul class="dropdown-menu">
+                        <li><a href="/" @click="logout()">Log out</a></li>
+                      </ul>
+                    </li>
+                  </ul>
+                </div>
+              </nav>
+            </div>
             <h1>My Tasks</h1>
           </div>
 
@@ -38,6 +57,7 @@
   import Item from './Item';
   import axios from 'axios';
   import Vue from 'vue';
+  import { setUpAxios } from './../main';
 
   export default {
 
@@ -61,6 +81,8 @@
         },
 
         is_prior: true,
+
+        currentUser: localStorage.getItem('user'),
       }
     },
 
@@ -118,88 +140,117 @@
             .catch((error) => { console.log(error); });
 
           this.$modal.show('dialog', {
-	          title: 'Info',
-	          text: 'Task edited.',
-	          buttons: [
-	            { 
-	              title: 'Ok',
-	              default: true,
-	              handler: () => { this.$modal.hide('dialog'); }
-	            }
-	         	]
-	       	})
+            title: 'Info',
+            text: 'Task edited.',
+            buttons: [
+              { 
+                title: 'Ok',
+                default: true,
+                handler: () => { this.$modal.hide('dialog'); }
+              }
+            ]
+          })
         }
+      },
+
+      logout() {
+
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setUpAxios();
       }
-    }  
+    }
   }
 </script>
 
 
 <style>
-	#app {
-	  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-	  -webkit-font-smoothing: antialiased;
-	  -moz-osx-font-smoothing: grayscale;
-	  text-align: center;
-	  color: #2c3e50;
-	  margin-top: 60px;
-	}
+  #app {
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: #2c3e50;
+    margin-top: 60px;
+  }
 
-	h1, h2 {
-	  font-weight: normal;
-	}
+  h1, h2 {
+    font-weight: normal;
+  }
 
-	ul {
-	  list-style-type: none;
-	  padding: 0;
-	}
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
 
-	li {
-	  display: inline-block;
-	  margin: 0 10px;
-	}
+  li {
+    display: inline-block;
+    margin: 0 10px;
+  }
 
-	a {
-	  color: #42b983;
-	}
+  a {
+    color: #42b983;
+  }
 
-	.tasks-list {
-	  
-	  margin: 20px;
-	}
+  .tasks-list {
+    
+    margin: 20px;
+  }
 
-	.panel-body { 
-	  padding:0px; 
-	}
+  .panel-body { 
+    padding:0px; 
+  }
 
-	.panel-footer .pagination { 
-	  margin: 0; 
-	}
+  .panel-footer .pagination { 
+    margin: 0; 
+  }
 
-	.panel .glyphicon,.list-group-item .glyphicon { 
-	  margin-right:5px; 
-	}
+  .panel .glyphicon,.list-group-item .glyphicon { 
+    margin-right:5px; 
+  }
 
-	.panel-body .radio, .checkbox { 
-	  display:inline-block;
-	  margin:0px; 
-	}
+  .panel-body .radio, .checkbox { 
+    display:inline-block;
+    margin:0px; 
+  }
 
-	.panel-body input[type=checkbox]:checked + label { 
-	  text-decoration: line-through;
-	  color: rgb(128, 144, 160); 
-	}
+  .panel-body input[type=checkbox]:checked + label { 
+    text-decoration: line-through;
+    color: rgb(128, 144, 160); 
+  }
 
-	.list-group-item:hover, a.list-group-item:focus { 
-	  text-decoration: none;
-	  background-color: rgb(245, 245, 245);
-	}
+  .list-group-item:hover, a.list-group-item:focus { 
+    text-decoration: none;
+    background-color: rgb(245, 245, 245);
+  }
 
-	.list-group-item {
-	  padding-left: 25px;
-	}
+  .list-group-item {
+    padding-left: 25px;
+  }
 
-	.list-group { 
-	  margin-bottom:0px; 
-	}
+  .list-group { 
+    margin-bottom:0px; 
+  }
+
+  .navbar-xs { 
+    min-height:20px;
+    alignment-baseline: central;
+  }
+
+  .navbar-xs .navbar-nav > li > a {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    line-height: 19px;
+  }
+
+  .userbar {
+    display: inline-flex;
+    height: auto;
+    width: auto;
+    border: none;
+  }
+
+  #bs-example-navbar-collapse-1 {
+    background-color: rgb(245, 245, 245);
+  }
 </style>
