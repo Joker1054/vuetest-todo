@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-      <div class="row">
+    <div class="row">
       <div class="col-md-6 col-md-offset-3">
         <div class="panel panel-login">
           <div class="panel-heading">
@@ -40,6 +40,18 @@
                     <div class="row">
                       <div class="col-sm-6 col-sm-offset-3">
                         <input type="button" name="register-submit" id="register-submit" tabindex="4" class="form-control btn btn-register" value="Register Now" @click="register()">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <p class="text-center">-or-</p>
+                  </div>
+                  <div class="form-group">
+                    <div class="row">
+                      <div class="col-lg-12">
+                        <div class="text-center">
+                          <router-link to="/login">Login</router-link>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -83,6 +95,7 @@
 
           this.$http.post('/register', {firstname: this.firstname,lastname: this.lastname, email: this.email, password: this.password, company: this.company, country: this.country, password_confirmation: this.confPassword})
             .then(({data}) => {
+
               this.$modal.show('dialog', {
                 title: 'Info',
                 text: 'Successfully registered! Welcome.',
@@ -92,7 +105,7 @@
                     default: true,
                     handler: () => {
                       localStorage.setItem('token', data.access_token);
-                      localStorage.setItem('user', `${data.user.firstname} ${data.user.lastname}`);
+                      localStorage.setItem('userjson', JSON.stringify(data.user));
                       setUpAxios();
                       this.$router.push('/my-tasks');
                       this.$modal.hide('dialog');
@@ -103,6 +116,7 @@
             })
             .catch((err) => console.log(err));
         } else {
+
           this.$modal.show('dialog',{
             title: 'Info',
             text: 'Passwords do not match. Try again.',
@@ -121,7 +135,6 @@
         }
       }
     }
-
   }
 </script>
 

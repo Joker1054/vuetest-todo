@@ -3,27 +3,30 @@
     <div class="row">
       <div class="col-md-8 col-md-offset-2">
         <div class="panel panel-default">
-          <div class="panel-heading">
-            <div class="userbar">
-              <nav class="navbar navbar-default navbar-xs">
-                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                  <ul class="nav navbar-nav">
-                    <li>
-                      <div class="navbar-header">
-                        <p><i class="glyphicon glyphicon-user"></i> {{ currentUser }}</p>
-                      </div>
-                    </li>
-                    <li class="dropdown">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b class="caret"></b></a>
-                      <ul class="dropdown-menu">
-                        <li><a href="/" @click="logout()">Log out</a></li>
-                      </ul>
-                    </li>
-                  </ul>
+          <nav class="navbar navbar-default navbar-xs">
+            <ul class="nav navbar-nav">
+              <li>
+                <avatar :username="currentUser.firstname" :src="currentUser.avatar_url" :size="30">
+                </avatar>
+              </li>
+              <li class="user-li">
+                <div class="navbar-header">
+                  <p class="user-nav">{{ currentUser.firstname }} {{ currentUser.lastname }}</p>
                 </div>
-              </nav>
-            </div>
-            <h1>My Tasks</h1>
+              </li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><router-link to="/change-avatar">Change avatar</router-link></li>
+                  <li><router-link to="/edit-profile">Edit profile</router-link></li>
+                  <li><a href="/" @click="logout()">Log out</a></li>
+                </ul>
+              </li>
+            </ul>
+          </nav>
+
+          <div class="panel-heading">
+            <h2>My Tasks</h2>
           </div>
 
           <div class="panel-body">
@@ -38,10 +41,10 @@
               <ul class="list-group" v-model="items">
                 <li v-for="item in items" :key="item.id" class="list-group-item" style="text-align: left;">
                   <Item v-bind:item="item" :id="item.id" 
-                    @delete-item="deleteTask" 
+                    @delete-item="deleteTask"
                     @check-done="checkDone"
                     @set-priority="setPriority"
-                    @edit-body="editBody">   
+                    @edit-body="editBody">
                   </Item>
                 </li>
               </ul> 
@@ -58,6 +61,7 @@
   import axios from 'axios';
   import Vue from 'vue';
   import { setUpAxios } from './../main';
+  import Avatar from 'vue-avatar';
 
   export default {
 
@@ -66,6 +70,7 @@
     components: {
 
       Item,
+      Avatar,
 
     },
 
@@ -82,7 +87,7 @@
 
         is_prior: true,
 
-        currentUser: localStorage.getItem('user'),
+        currentUser: JSON.parse(localStorage.getItem('userjson')),
       }
     },
 
@@ -156,9 +161,9 @@
       logout() {
 
         localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        localStorage.removeItem('userjson');
         setUpAxios();
-      }
+      },
     }
   }
 </script>
@@ -193,20 +198,19 @@
   }
 
   .tasks-list {
-    
     margin: 20px;
   }
 
-  .panel-body { 
-    padding:0px; 
+  .panel-body {
+    padding:0px;
   }
 
-  .panel-footer .pagination { 
-    margin: 0; 
+  .panel-footer .pagination {
+    margin: 0;
   }
 
-  .panel .glyphicon,.list-group-item .glyphicon { 
-    margin-right:5px; 
+  .panel .glyphicon,.list-group-item .glyphicon {
+    margin-right:5px;
   }
 
   .panel-body .radio, .checkbox { 
@@ -214,12 +218,12 @@
     margin:0px; 
   }
 
-  .panel-body input[type=checkbox]:checked + label { 
+  .panel-body input[type=checkbox]:checked + label {
     text-decoration: line-through;
     color: rgb(128, 144, 160); 
   }
 
-  .list-group-item:hover, a.list-group-item:focus { 
+  .list-group-item:hover, a.list-group-item:focus {
     text-decoration: none;
     background-color: rgb(245, 245, 245);
   }
@@ -229,28 +233,35 @@
   }
 
   .list-group { 
-    margin-bottom:0px; 
-  }
-
-  .navbar-xs { 
-    min-height:20px;
-    alignment-baseline: central;
+    margin-bottom:0px;
   }
 
   .navbar-xs .navbar-nav > li > a {
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding-top: 0px;
+    padding-bottom: 0px;
     line-height: 19px;
   }
 
-  .userbar {
-    display: inline-flex;
-    height: auto;
-    width: auto;
-    border: none;
+  .nav {
+    float: right;
+    margin: 0px;
   }
 
-  #bs-example-navbar-collapse-1 {
-    background-color: rgb(245, 245, 245);
+  .navbar {
+    background-color: #59B2E0;
+    margin: 0px;
+    padding-top: 5px;
+  }
+
+  .user-nav {
+    color: #fff;
+  }
+
+  .caret {
+    color: #fff;
+  }
+
+  .user-li, .dropdown {
+    margin: 5px;
   }
 </style>

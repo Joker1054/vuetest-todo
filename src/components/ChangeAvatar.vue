@@ -6,7 +6,7 @@
           <div class="panel-heading">
             <div class="row">
               <div class="">
-                <h1>Login</h1>
+                <h1>Change Avatar</h1>
               </div>
             </div>
             <hr>
@@ -16,15 +16,19 @@
               <div class="col-lg-12">
                 <form id="login-form" action="" method="" role="form" style="display: block;">
                   <div class="form-group">
-                    <input type="text" v-model="email" name="username" id="username" tabindex="1" class="form-control" placeholder="Username" value="">
-                  </div>
-                  <div class="form-group">
-                    <input type="password" v-model="password" name="password" id="password" tabindex="2" class="form-control" placeholder="Password">
+                    <div class="col-lg-12">
+                      <div class="text-center">
+                        <img :src="currentUser.avatar_url" class="avatar img-circle" alt="avatar">
+                        <h6>Upload a different photo...</h6>
+                        
+                        <input class="form-control" type="file" ref="file" @change="fileUpload()">
+                      </div>
+                    </div>
                   </div>
                   <div class="form-group">
                     <div class="row">
                       <div class="col-sm-6 col-sm-offset-3">
-                        <input type="button" name="login-submit" id="login-submit" tabindex="4" class="form-control btn btn-login" @click="login()" value="Log In">
+                        <input type="button" name="login-submit" id="login-submit" tabindex="4" class="form-control btn btn-login" @click="changeAvatar()" value="Change Avatar">
                       </div>
                     </div>
                   </div>
@@ -35,7 +39,7 @@
                     <div class="row">
                       <div class="col-lg-12">
                         <div class="text-center">
-                          <router-link to="/register">Register</router-link>
+                          <router-link to="/my-tasks">Cancel</router-link>
                         </div>
                       </div>
                     </div>
@@ -53,62 +57,62 @@
 
 <script type="text/javascript">
   import Vue from 'vue';
-  import { setUpAxios } from './../main';
 
   export default {
-
     name: 'app',
 
     data () {
-
       return {
-        isLogged: false,
-        email: '',
-        password: '',
-        token: '',
+        currentUser: JSON.parse(localStorage.getItem('userjson')),
+        file: '',
       }
     },
 
     methods: {
 
-      login () {
+      fileUpload() {
 
-        this.$http.post('/login', {email: this.email, password: this.password})
-          .then(({data}) => {
+        this.file = this.$refs.file.files[0];
+      },
 
-            localStorage.setItem('token', data.access_token);
-            localStorage.setItem('userjson', JSON.stringify(data.user));
-            setUpAxios();
-          })
-          .then(() => this.$router.push('/my-tasks'))
-          .catch((err) => {
-            
-            console.log(err);
-            this.$modal.show('dialog', {
-              title: 'Info',
-              text: 'Invalid email or password!',
-              buttons: [
-                { 
-                  title: 'Ok',
-                  default: true,
-                  handler: () => { 
+      changeAvatar() {
 
-                    localStorage.removeItem('userjson');
-                    this.$modal.hide('dialog');
-                    return location.href = '/'; 
-                  }
+        let formData = new FormData();
+
+        formData.append('file', this.file);
+
+        this.$http.post(`/users/${this.currentUser.id}`, formData, {
+          headers: {
+              'Content-Type': 'multipart/form-data'
+          }
+        }).then(({data}) => {
+          this.$modal.show('dialog', {
+            title: 'Info',
+            text: 'Avatar Changed!',
+            buttons: [
+              { 
+                title: 'Ok',
+                default: true,
+                handler: () => { 
+                  localStorage.removeItem('userjson');
+                  localStorage.setItem('userjson', JSON.stringify(data.user));
+                  location.href = '/my-tasks';
+                  this.$modal.hide('dialog'); 
                 }
-              ]
-            })
-          });
+              }
+            ]
+          })
+        })
+        .catch((err) => console.log(err));
       }
     }
   }
+  
 </script>
 
 <style type="text/css">
-  body {
-    padding-top: 90px;
+body {
+  padding-top: 90px;
 }
 .panel-login {
   border-color: #ccc;
@@ -172,11 +176,16 @@
   padding: 14px 0;
   text-transform: uppercase;
   border-color: #59B2E6;
+  margin-top: 30px;
 }
 .btn-login:hover,
 .btn-login:focus {
   color: #fff;
   background-color: #53A3CD;
   border-color: #53A3CD;
+}
+img {
+  height: 100px;
+  width: 100px;
 }
 </style>

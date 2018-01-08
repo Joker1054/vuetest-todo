@@ -3,6 +3,9 @@ import Router from 'vue-router'
 import Login from '../components/Login.vue'
 import Register from '../components/Register'
 import Items from '../components/Items'
+import Edit from '../components/Edit'
+import ChangeAvatar from '../components/ChangeAvatar'
+import ChangePassword from '../components/ChangePassword'
 
 Vue.use(Router)
 
@@ -29,6 +32,21 @@ const router = new Router({
       path: '/my-tasks',
       name: 'items',
       component: Items
+    },
+    {
+      path: '/edit-profile',
+      name: 'edit',
+      component: Edit
+    },
+    {
+      path: '/change-avatar',
+      name: 'changeAvatar',
+      component: ChangeAvatar
+    },
+    {
+      path: '/change-password',
+      name: 'changePassword',
+      component: ChangePassword
     }
   ]
 })

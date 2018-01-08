@@ -6,7 +6,7 @@
           <div class="panel-heading">
             <div class="row">
               <div class="">
-                <h1>Login</h1>
+                <h1>Enter New Password</h1>
               </div>
             </div>
             <hr>
@@ -16,15 +16,15 @@
               <div class="col-lg-12">
                 <form id="login-form" action="" method="" role="form" style="display: block;">
                   <div class="form-group">
-                    <input type="text" v-model="email" name="username" id="username" tabindex="1" class="form-control" placeholder="Username" value="">
+                    <input type="password" name="password" id="password" tabindex="2" class="form-control" placeholder="Password" v-model="password">
                   </div>
                   <div class="form-group">
-                    <input type="password" v-model="password" name="password" id="password" tabindex="2" class="form-control" placeholder="Password">
+                    <input type="password" name="confirm-password" id="confirm-password" tabindex="2" class="form-control" placeholder="Confirm Password" v-model="confPassword">
                   </div>
                   <div class="form-group">
                     <div class="row">
                       <div class="col-sm-6 col-sm-offset-3">
-                        <input type="button" name="login-submit" id="login-submit" tabindex="4" class="form-control btn btn-login" @click="login()" value="Log In">
+                        <input type="button" name="login-submit" id="login-submit" tabindex="4" class="form-control btn btn-login" @click="changePassword()" value="Change Password">
                       </div>
                     </div>
                   </div>
@@ -35,7 +35,7 @@
                     <div class="row">
                       <div class="col-lg-12">
                         <div class="text-center">
-                          <router-link to="/register">Register</router-link>
+                          <router-link to="/edit-profile">Cancel</router-link>
                         </div>
                       </div>
                     </div>
@@ -52,63 +52,60 @@
 </template>
 
 <script type="text/javascript">
-  import Vue from 'vue';
-  import { setUpAxios } from './../main';
+import Vue from 'vue';
 
-  export default {
+export default {
+  name: 'app',
 
-    name: 'app',
+  data () {
+    return {
+      currentUser: JSON.parse(localStorage.getItem('userjson')),
+      token: localStorage.getItem('token'),
+      password: '',
+      confPassword: '',
+    }
+  },
 
-    data () {
+  methods: {
 
-      return {
-        isLogged: false,
-        email: '',
-        password: '',
-        token: '',
-      }
-    },
+    changePassword() {
 
-    methods: {
+      this.$http.post('password/reset', {
 
-      login () {
+        token: `Bearer ${this.token}`,
+        email: this.currentUser.email, 
+        password: this.password, 
+        password_confirmation: this.confPassword
+      })
+        .then(({data}) => {
 
-        this.$http.post('/login', {email: this.email, password: this.password})
-          .then(({data}) => {
-
-            localStorage.setItem('token', data.access_token);
-            localStorage.setItem('userjson', JSON.stringify(data.user));
-            setUpAxios();
-          })
-          .then(() => this.$router.push('/my-tasks'))
-          .catch((err) => {
-            
-            console.log(err);
-            this.$modal.show('dialog', {
-              title: 'Info',
-              text: 'Invalid email or password!',
-              buttons: [
-                { 
-                  title: 'Ok',
-                  default: true,
-                  handler: () => { 
-
-                    localStorage.removeItem('userjson');
-                    this.$modal.hide('dialog');
-                    return location.href = '/'; 
-                  }
+          this.$modal.show('dialog', {
+            title: 'Info',
+            text: 'Password changed!',
+            buttons: [
+              { 
+                title: 'Ok',
+                default: true,
+                handler: () => { 
+                  localStorage.removeItem('userjson');
+                  localStorage.setItem('userjson', JSON.stringify(data.user));
+                  location.href = '/my-tasks';
+                  this.$modal.hide('dialog'); 
                 }
-              ]
-            })
-          });
-      }
+              }
+            ]
+          })
+        })
+        .catch((err) => console.log(err));
     }
   }
+}
+  
 </script>
 
 <style type="text/css">
-  body {
-    padding-top: 90px;
+body {
+  padding-top: 90px;
 }
 .panel-login {
   border-color: #ccc;
@@ -172,6 +169,7 @@
   padding: 14px 0;
   text-transform: uppercase;
   border-color: #59B2E6;
+  margin-top: 30px;
 }
 .btn-login:hover,
 .btn-login:focus {

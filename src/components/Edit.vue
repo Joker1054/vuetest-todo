@@ -6,7 +6,7 @@
           <div class="panel-heading">
             <div class="row">
               <div class="">
-                <h1>Login</h1>
+                <h1>Edit profile</h1>
               </div>
             </div>
             <hr>
@@ -14,17 +14,48 @@
           <div class="panel-body">
             <div class="row">
               <div class="col-lg-12">
-                <form id="login-form" action="" method="" role="form" style="display: block;">
+                <form id="register-form" action="https://phpoll.com/register/process" method="post" role="form" style="display: block;">
                   <div class="form-group">
-                    <input type="text" v-model="email" name="username" id="username" tabindex="1" class="form-control" placeholder="Username" value="">
+                    <label class="col-lg-3 control-label">First name:</label>
+                    <div class="">
+                      <input class="form-control" v-model="currentUser.firstname" type="text">
+                    </div>
                   </div>
                   <div class="form-group">
-                    <input type="password" v-model="password" name="password" id="password" tabindex="2" class="form-control" placeholder="Password">
+                    <label class="col-lg-3 control-label">Last name:</label>
+                    <div class="">
+                      <input class="form-control" v-model="currentUser.lastname" type="text">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-lg-3 control-label">Email:</label>
+                    <div class="">
+                      <input class="form-control" v-model="currentUser.email" type="text">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-lg-3 control-label">Company:</label>
+                    <div class="">
+                      <input class="form-control" v-model="currentUser.company" type="text">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-lg-3 control-label">Country:</label>
+                    <div class="">
+                      <input class="form-control" v-model="currentUser.country" type="text">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="row">
+                      <div class="col-lg-12">
+                        <router-link to="/change-password">Change Password</router-link>
+                      </div>
+                    </div>
                   </div>
                   <div class="form-group">
                     <div class="row">
                       <div class="col-sm-6 col-sm-offset-3">
-                        <input type="button" name="login-submit" id="login-submit" tabindex="4" class="form-control btn btn-login" @click="login()" value="Log In">
+                        <input type="button" name="register-submit" id="register-submit" tabindex="4" class="form-control btn btn-primary" value="Save Changes" @click="updateUser()">
                       </div>
                     </div>
                   </div>
@@ -35,7 +66,7 @@
                     <div class="row">
                       <div class="col-lg-12">
                         <div class="text-center">
-                          <router-link to="/register">Register</router-link>
+                          <router-link to="/my-tasks">Cancel</router-link>
                         </div>
                       </div>
                     </div>
@@ -53,63 +84,73 @@
 
 <script type="text/javascript">
   import Vue from 'vue';
-  import { setUpAxios } from './../main';
 
   export default {
-
     name: 'app',
 
     data () {
 
       return {
-        isLogged: false,
-        email: '',
-        password: '',
-        token: '',
+        currentUser: JSON.parse(localStorage.getItem('userjson')),
+        file: '',
       }
     },
 
     methods: {
 
-      login () {
+      updateUser() {
 
-        this.$http.post('/login', {email: this.email, password: this.password})
+        this.$http.put(`/users/${this.currentUser.id}`, this.currentUser)
           .then(({data}) => {
-
-            localStorage.setItem('token', data.access_token);
-            localStorage.setItem('userjson', JSON.stringify(data.user));
-            setUpAxios();
-          })
-          .then(() => this.$router.push('/my-tasks'))
-          .catch((err) => {
-            
-            console.log(err);
             this.$modal.show('dialog', {
               title: 'Info',
-              text: 'Invalid email or password!',
+              text: 'Profile edited!',
               buttons: [
                 { 
                   title: 'Ok',
                   default: true,
                   handler: () => { 
-
                     localStorage.removeItem('userjson');
-                    this.$modal.hide('dialog');
-                    return location.href = '/'; 
+                    localStorage.setItem('userjson', JSON.stringify(data.user));
+                    this.$router.push('/my-tasks');
+                    this.$modal.hide('dialog'); 
                   }
                 }
               ]
             })
-          });
+          })
+          .catch((err) => console.log(err));
       }
     }
+
   }
+  
 </script>
 
 <style type="text/css">
-  body {
-    padding-top: 90px;
+body {
+  padding-top: 90px;
 }
+
+.btn-register {
+  background-color: #1CB94E;
+  outline: none;
+  color: #fff;
+  font-size: 14px;
+  height: auto;
+  font-weight: normal;
+  padding: 14px 0;
+  text-transform: uppercase;
+  border-color: #1CB94A;
+}
+
+.btn-register:hover,
+.btn-register:focus {
+  color: #fff;
+  background-color: #1CA347;
+  border-color: #1CA347;
+}
+
 .panel-login {
   border-color: #ccc;
   -webkit-box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.2);
@@ -146,6 +187,7 @@
   background-image: -ms-linear-gradient(left,rgba(0,0,0,0),rgba(0,0,0,0.15),rgba(0,0,0,0));
   background-image: -o-linear-gradient(left,rgba(0,0,0,0),rgba(0,0,0,0.15),rgba(0,0,0,0));
 }
+
 .panel-login input[type="text"],.panel-login input[type="email"],.panel-login input[type="password"] {
   height: 45px;
   border: 1px solid #ddd;
@@ -161,22 +203,5 @@
   -moz-box-shadow: none;
   box-shadow: none;
   border-color: #ccc;
-}
-.btn-login {
-  background-color: #59B2E0;
-  outline: none;
-  color: #fff;
-  font-size: 14px;
-  height: auto;
-  font-weight: normal;
-  padding: 14px 0;
-  text-transform: uppercase;
-  border-color: #59B2E6;
-}
-.btn-login:hover,
-.btn-login:focus {
-  color: #fff;
-  background-color: #53A3CD;
-  border-color: #53A3CD;
 }
 </style>
