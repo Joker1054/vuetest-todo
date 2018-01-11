@@ -21,6 +21,8 @@ module.exports = {
         loader: 'vue-loader',
         options: {
           loaders: {
+            'scss': 'vue-style-loader!css-loader!sass-loader',
+            'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax'
           }
           // other vue-loader options go here
         }
@@ -36,6 +38,21 @@ module.exports = {
         options: {
           name: '[name].[ext]?[hash]'
         }
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          {
+            loader: 'css-loader'
+          },
+          {
+            loader: 'sass-loader'
+          }
+        ]
+      },
+      {
+          test: /\.(eot|svg|ttf|woff|woff2)$/,
+          loader: "file-loader"
       }
     ]
   },
@@ -73,6 +90,15 @@ if (process.env.NODE_ENV === 'production') {
     }),
     new webpack.LoaderOptionsPlugin({
       minimize: true
-    })
+    }),
+    new webpack.ProvidePlugin({
+    $: 'jquery',
+    jQuery: 'jquery',
+    'window.jQuery': 'jquery',
+    Popper: ['popper.js', 'default'],
+    // In case you imported plugins individually, you must also require them here:
+    Util: "exports-loader?Util!bootstrap/js/dist/util",
+    Dropdown: "exports-loader?Dropdown!bootstrap/js/dist/dropdown",
+  })
   ])
 }

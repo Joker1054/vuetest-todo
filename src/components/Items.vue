@@ -1,53 +1,48 @@
 <template>
-  <div class="container">
+  <div class="container" style="padding-top:50px">
     <div class="row">
-      <div class="col-md-8 col-md-offset-2">
+      <div>
         <div class="panel panel-default">
-          <nav class="navbar navbar-default navbar-xs">
-            <ul class="nav navbar-nav">
-              <li>
-                <avatar :username="currentUser.firstname" :src="currentUser.avatar_url" :size="30">
-                </avatar>
-              </li>
-              <li class="user-li">
-                <div class="navbar-header">
-                  <p class="user-nav">{{ currentUser.firstname }} {{ currentUser.lastname }}</p>
-                </div>
-              </li>
-              <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b class="caret"></b></a>
-                <ul class="dropdown-menu">
-                  <li><router-link to="/change-avatar">Change avatar</router-link></li>
-                  <li><router-link to="/edit-profile">Edit profile</router-link></li>
-                  <li><a href="/" @click="logout()">Log out</a></li>
-                </ul>
-              </li>
-            </ul>
-          </nav>
+          <section class="hero is-info">
+            <!-- Hero content: will be in the middle -->
+            <div class="hero-body">
+              <div class="container has-text-centered">
+                <h1 class="title is-1">
+                  To DO
+                </h1>
+                <h2 class="subtitle">
+                  List of all tasks
+                </h2>
+              </div>
+            </div>
 
-          <div class="panel-heading">
-            <h2>My Tasks</h2>
-          </div>
-
+            <!-- Hero footer: will stick at the bottom -->
+            <div class="hero-foot">
+            </div>
+          </section>
           <div class="panel-body">
-            <div class="input-group">
-              <input type="text" class="form-control" v-model="newItem.body">
-              <span class="input-group-btn">
-                <button class="btn btn-success" @click="addTask()">Add</button>
-              </span>
+            <div class="field has-addons">
+              <div class="control" style="width: 100vw">
+                <input class="input" type="text" placeholder="Enter task..." v-model="newItem.body">
+              </div>
+              <div class="control">
+                <a class="button is-success" @click="addTask()">Add</a>
+              </div>
             </div>
 
             <div class="tasks-list">
-              <ul class="list-group" v-model="items">
-                <li v-for="item in items" :key="item.id" class="list-group-item" style="text-align: left;">
-                  <Item v-bind:item="item" :id="item.id" 
-                    @delete-item="deleteTask"
-                    @check-done="checkDone"
-                    @set-priority="setPriority"
-                    @edit-body="editBody">
-                  </Item>
-                </li>
-              </ul> 
+              <table class="table table-filter" v-model="todoList" style="display:flex">
+                <tbody style="width: 100%">
+                  <tr v-for="item in todoList" :key="item.id" class="list-group-item" style="text-align: left; display: flex; width: 100%">
+                    <Item v-bind:item="item" :id="item.id" 
+                      @delete-item="deleteTask"
+                      @check-done="checkDone"
+                      @set-priority="setPriority"
+                      @edit-body="editBody">
+                    </Item>
+                  </tr>
+                </tbody>
+              </table> 
             </div>
           </div>
         </div>
@@ -62,6 +57,7 @@
   import Vue from 'vue';
   import { setUpAxios } from './../main';
   import Avatar from 'vue-avatar';
+  import { mapGetters } from 'vuex'
 
   export default {
 
@@ -74,10 +70,18 @@
 
     },
 
+    computed: {
+      // mix the getters into computed with object spread operator
+      ...mapGetters([
+        'currentUser',
+        'todoList'
+        // ...
+      ])
+    },
+
     data () {
       
       return {
-        items: [],
 
         newItem: {
           body: '',
@@ -86,22 +90,22 @@
         },
 
         is_prior: true,
-
-        currentUser: JSON.parse(localStorage.getItem('userjson')),
       }
     },
 
     created() {
-
       this.fetchData();
-
     },
 
     methods: {
 
       fetchData () {
         this.$http.get('items')
-          .then(({ data }) => this.items = data.data)
+          .then(({ data }) => {
+            this.$store.commit('fillTodoList', {
+              items: data.data
+            });
+          })
           .catch((err) => console.log(err));
       },
 
@@ -109,7 +113,11 @@
 
         if(this.newItem.body != '' && this.newItem.body.length < 80){
           this.$http.post('items', this.newItem)
-            .then(({ data }) => this.items.push(data))
+            .then(({ data }) => {
+              this.$store.commit('addItemToTodoList', {
+                item: data
+              })
+            })
             .then(()=> this.newItem.body = '')
             .catch((error) => { console.log(error); });
         }
@@ -117,7 +125,12 @@
 
       deleteTask(item) {
         this.$http.delete(`items/${item.id}`)
-          .then((res) => this.fetchData())
+          .then(() => {
+            let index = this.todoList.indexOf(item)
+            this.$store.commit('deleteTaskFromTodoList', {
+              task: index
+            })
+          })
           .catch((error) => { console.log(error); });
       },
 
@@ -143,26 +156,7 @@
 
           this.$http.put(`items/${item.id}`, item)
             .catch((error) => { console.log(error); });
-
-          this.$modal.show('dialog', {
-            title: 'Info',
-            text: 'Task edited.',
-            buttons: [
-              { 
-                title: 'Ok',
-                default: true,
-                handler: () => { this.$modal.hide('dialog'); }
-              }
-            ]
-          })
         }
-      },
-
-      logout() {
-
-        localStorage.removeItem('token');
-        localStorage.removeItem('userjson');
-        setUpAxios();
       },
     }
   }
@@ -170,98 +164,11 @@
 
 
 <style>
-  #app {
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-    margin-top: 60px;
+  .container {
+    width: 70%;
   }
 
-  h1, h2 {
-    font-weight: normal;
-  }
-
-  ul {
-    list-style-type: none;
-    padding: 0;
-  }
-
-  li {
-    display: inline-block;
-    margin: 0 10px;
-  }
-
-  a {
-    color: #42b983;
-  }
-
-  .tasks-list {
-    margin: 20px;
-  }
-
-  .panel-body {
-    padding:0px;
-  }
-
-  .panel-footer .pagination {
-    margin: 0;
-  }
-
-  .panel .glyphicon,.list-group-item .glyphicon {
-    margin-right:5px;
-  }
-
-  .panel-body .radio, .checkbox { 
-    display:inline-block;
-    margin:0px; 
-  }
-
-  .panel-body input[type=checkbox]:checked + label {
-    text-decoration: line-through;
-    color: rgb(128, 144, 160); 
-  }
-
-  .list-group-item:hover, a.list-group-item:focus {
-    text-decoration: none;
-    background-color: rgb(245, 245, 245);
-  }
-
-  .list-group-item {
-    padding-left: 25px;
-  }
-
-  .list-group { 
-    margin-bottom:0px;
-  }
-
-  .navbar-xs .navbar-nav > li > a {
-    padding-top: 0px;
-    padding-bottom: 0px;
-    line-height: 19px;
-  }
-
-  .nav {
-    float: right;
-    margin: 0px;
-  }
-
-  .navbar {
-    background-color: #59B2E0;
-    margin: 0px;
-    padding-top: 5px;
-  }
-
-  .user-nav {
-    color: #fff;
-  }
-
-  .caret {
-    color: #fff;
-  }
-
-  .user-li, .dropdown {
-    margin: 5px;
+  .field.has-addons {
+    padding-top: 1rem;
   }
 </style>

@@ -1,53 +1,37 @@
 <template>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-6 col-md-offset-3">
-        <div class="panel panel-login">
-          <div class="panel-heading">
-            <div class="row">
-              <div class="">
-                <h1>Enter New Password</h1>
-              </div>
-            </div>
-            <hr>
-          </div>
-          <div class="panel-body">
-            <div class="row">
-              <div class="col-lg-12">
-                <form id="login-form" action="" method="" role="form" style="display: block;">
-                  <div class="form-group">
-                    <input type="password" name="password" id="password" tabindex="2" class="form-control" placeholder="Password" v-model="password">
+  <div>
+    <section class="hero is-fullheight">
+      <div class="hero-body">
+        <div class="container has-text-centered">
+          <div class="column is-4 is-offset-4">
+            <h3 class="title has-text-blue">Change password</h3>
+            <div class="box">
+              <form>
+                <div class="field">
+                  <div class="control">
+                    <input class="input is-medium" v-model="password" type="password" placeholder="New password" autofocus="">
                   </div>
-                  <div class="form-group">
-                    <input type="password" name="confirm-password" id="confirm-password" tabindex="2" class="form-control" placeholder="Confirm Password" v-model="confPassword">
+                </div>
+                <div class="field">
+                  <div class="control">
+                    <input class="input is-medium" v-model="confPassword" type="password" placeholder="Confirm password" autofocus="">
                   </div>
-                  <div class="form-group">
-                    <div class="row">
-                      <div class="col-sm-6 col-sm-offset-3">
-                        <input type="button" name="login-submit" id="login-submit" tabindex="4" class="form-control btn btn-login" @click="changePassword()" value="Change Password">
-                      </div>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <p class="text-center">-or-</p>
-                  </div>
-                  <div class="form-group">
-                    <div class="row">
-                      <div class="col-lg-12">
-                        <div class="text-center">
-                          <router-link to="/edit-profile">Cancel</router-link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </form>
-              </div>
+                </div>
+                <a class="button is-block is-info is-large" @click="changePassword()">Change password</a>
+                <div class="field">
+                  <label>-or-</label>
+                </div>
+                <div class="field">
+                  <p class="has-text-grey">
+                    &nbsp;·&nbsp;<router-link to="/edit-profile">Cancel</router-link>&nbsp;·&nbsp;
+                  </p>
+                </div>
+              </form>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <v-dialog/>
+    </section>
   </div>
 </template>
 
@@ -59,7 +43,7 @@ export default {
 
   data () {
     return {
-      currentUser: JSON.parse(localStorage.getItem('userjson')),
+      currentUser: this.$store.getters.currentUser,
       token: localStorage.getItem('token'),
       password: '',
       confPassword: '',
@@ -70,111 +54,29 @@ export default {
 
     changePassword() {
 
-      this.$http.post('password/reset', {
+      this.$dialog.confirm({
+        message: 'Do you want to save new password?',
+        onConfirm: () => {
+          this.$http.put('/password/change-password', { 
+              password: this.password, 
+              password_confirmation: this.confPassword
+            })
+            .then(({data}) => {
 
-        token: `Bearer ${this.token}`,
-        email: this.currentUser.email, 
-        password: this.password, 
-        password_confirmation: this.confPassword
-      })
-        .then(({data}) => {
+              localStorage.removeItem('userjson');
+              localStorage.setItem('userjson', JSON.stringify(data.user));
+              this.$store.commit('setCurrentUser', {
+                user: JSON.parse(localStorage.getItem('userjson'))
+              });
+            })
+            .catch((err) => console.log(err));
 
-          this.$modal.show('dialog', {
-            title: 'Info',
-            text: 'Password changed!',
-            buttons: [
-              { 
-                title: 'Ok',
-                default: true,
-                handler: () => { 
-                  localStorage.removeItem('userjson');
-                  localStorage.setItem('userjson', JSON.stringify(data.user));
-                  location.href = '/my-tasks';
-                  this.$modal.hide('dialog'); 
-                }
-              }
-            ]
-          })
-        })
-        .catch((err) => console.log(err));
+          this.$router.push('/my-tasks');
+          this.$toast.open('Password changed successfuly!');
+        }
+      });
     }
   }
 }
   
 </script>
-
-<style type="text/css">
-body {
-  padding-top: 90px;
-}
-.panel-login {
-  border-color: #ccc;
-  -webkit-box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.2);
-  -moz-box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.2);
-  box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.2);
-}
-.panel-login>.panel-heading {
-  color: #00415d;
-  background-color: #fff;
-  border-color: #fff;
-  text-align:center;
-}
-.panel-login>.panel-heading a{
-  text-decoration: none;
-  color: #666;
-  font-weight: bold;
-  font-size: 15px;
-  -webkit-transition: all 0.1s linear;
-  -moz-transition: all 0.1s linear;
-  transition: all 0.1s linear;
-}
-.panel-login>.panel-heading h1{
-  color: #59B2E0;
-  font-size: 18px;
-}
-.panel-login>.panel-heading hr{
-  margin-top: 10px;
-  margin-bottom: 0px;
-  clear: both;
-  border: 0;
-  height: 1px;
-  background-image: -webkit-linear-gradient(left,rgba(0, 0, 0, 0),rgba(0, 0, 0, 0.15),rgba(0, 0, 0, 0));
-  background-image: -moz-linear-gradient(left,rgba(0,0,0,0),rgba(0,0,0,0.15),rgba(0,0,0,0));
-  background-image: -ms-linear-gradient(left,rgba(0,0,0,0),rgba(0,0,0,0.15),rgba(0,0,0,0));
-  background-image: -o-linear-gradient(left,rgba(0,0,0,0),rgba(0,0,0,0.15),rgba(0,0,0,0));
-}
-.panel-login input[type="text"],.panel-login input[type="email"],.panel-login input[type="password"] {
-  height: 45px;
-  border: 1px solid #ddd;
-  font-size: 16px;
-  -webkit-transition: all 0.1s linear;
-  -moz-transition: all 0.1s linear;
-  transition: all 0.1s linear;
-}
-.panel-login input:hover,
-.panel-login input:focus {
-  outline:none;
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  box-shadow: none;
-  border-color: #ccc;
-}
-.btn-login {
-  background-color: #59B2E0;
-  outline: none;
-  color: #fff;
-  font-size: 14px;
-  height: auto;
-  font-weight: normal;
-  padding: 14px 0;
-  text-transform: uppercase;
-  border-color: #59B2E6;
-  margin-top: 30px;
-}
-.btn-login:hover,
-.btn-login:focus {
-  color: #fff;
-  background-color: #53A3CD;
-  border-color: #53A3CD;
-}
-</style>
